@@ -1,0 +1,9 @@
+* Stop Youtube Autoplay
+A Firefox addon to prevent youtube's autoplay feature. Only tested
+with Youtube's HTML5 player.
+
+It works by stopping HTTP requests from Youtube that have a temporary
+autoplay cookie.
+* Why?
+This is useful if you clear cookies on every browser session. There
+might have been an easier way, but this was a learning experience.
