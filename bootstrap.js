@@ -1,11 +1,31 @@
 
-Components.utils.import("resource://gre/modules/Services.jsm");
+const { utils: Cu, interfaces: Ci } = Components;
+
+const require = Cu.import("resource://gre/modules/commonjs/toolkit/require.js", {}).require;
+
+const querystring = require('sdk/querystring'); 
+
+Cu.import("resource://gre/modules/Services.jsm");
 
 var myobserver = {
     observe : function(subject, topic, data) {
-	subject.QueryInterface(Components.interfaces.nsIHttpChannel);
-	if( subject.URI.host == 'www.youtube.com' &&
-	    subject.getRequestHeader('Cookie').match(/s_tempdata.*autonav=1/) ) {
+	subject.QueryInterface(Ci.nsIHttpChannel);
+
+	if( subject.URI.host != 'www.youtube.com' )
+	    return;
+	
+	var cookies = querystring.
+	    parse( subject.getRequestHeader('Cookie'), ';', '=' );
+
+	var key = Object.keys(cookies).find(function(key) {
+	    if( key.match(/tempdata/) )
+		return key;
+	});
+	
+	var tempValues = querystring.parse(cookies[key], '&', '=');
+
+	if( tempValues['feature'] == 'related-auto' ||
+	    tempValues['feature'] == 'autoplay' ) {
 	    console.log('STOPPED YOUTUBE AUTOPLAY');
 	    subject.cancel(Components.results.NS_BINDING_ABORTED);
 	}
